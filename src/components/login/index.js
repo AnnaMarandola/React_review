@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-
+import { registerUser } from "../../store/actions";
+import { connect } from "react-redux";
 class Login extends Component {
   state = {
     formdata: {
@@ -20,9 +21,20 @@ class Login extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    this.setState({loading: true})
+    if (this.state.register) {
+      this.props.dispatch(registerUser(this.state.formdata)).then(
+        ({payload}) => this.handleRedirection(payload)
+      )
+    } else {
+      console.log(this.state.formdata, "login");
+    }
 
-    console.log(this.state.formdata);
   };
+
+  handleRedirection = result => {
+    
+  }
 
   handleInput = (e) => {
     let name = e.target.name;
@@ -112,4 +124,8 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const mapStateToProps = state => ({
+  auth: state.auth
+})
+
+export default connect(mapStateToProps)(Login);
