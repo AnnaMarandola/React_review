@@ -1,62 +1,115 @@
-import React from "react";
+import React, { Component } from "react";
 
-const Login = props => {
-  return (
-    <>
-      <form className="form-signin">
-        <h1 className="h3 mb-3 font-weight-normal">Login</h1>
+class Login extends Component {
+  state = {
+    formdata: {
+      name: "",
+      lastname: "",
+      password: "",
+      email: "",
+    },
+    register: false,
+    loading: false,
+  };
 
-        <>
+  handleFormType = () => {
+    this.setState((prevState) => ({
+      register: !prevState.register,
+    }));
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+
+    console.log(this.state.formdata);
+  };
+
+  handleInput = (e) => {
+    let name = e.target.name;
+    let value = e.target.value;
+    this.setState((prevState) => ({
+      formdata: {
+        ...prevState.formdata,
+        [name]: value,
+      },
+    }));
+  };
+
+  render() {
+    const { register, formdata, loading } = this.state;
+    let formTitle = register ? "Registered" : "Sign in";
+    return (
+      <div className="container login-wrapper">
+        <form className="form-signin" onSubmit={this.handleSubmit}>
+          <h1 className="h3 mb-3 font-weight-normal">{formTitle}</h1>
+          {register ? (
+            <>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                className="form-control mb-3"
+                placeholder="Your name"
+                onChange={this.handleInput}
+                value={formdata.name}
+              />
+
+              <input
+                type="text"
+                id="lastname"
+                name="lastname"
+                className="form-control mb-3"
+                placeholder="Your lastname"
+                onChange={this.handleInput}
+                value={formdata.lastname}
+              />
+            </>
+          ) : null}
+
           <input
-            type="text"
-            id="name"
-            name="name"
+            type="email"
+            id="email"
+            name="email"
             className="form-control mb-3"
-            placeholder="Your name"
+            placeholder="Email address"
+            onChange={this.handleInput}
+            value={formdata.email}
           />
 
           <input
-            type="text"
-            id="lastname"
-            name="lastname"
-            className="form-control mb-3"
-            placeholder="Your lastname"
+            type="password"
+            id="password"
+            name="password"
+            className="form-control"
+            placeholder="Password"
+            onChange={this.handleInput}
+            value={formdata.password}
           />
-        </>
 
-        <input
-          type="email"
-          id="email"
-          name="email"
-          className="form-control mb-3"
-          placeholder="Email address"
-        />
+          <br />
+          <button
+            className="btn btn-lg btn-primary btn-block"
+            type="submit"
+            disabled={loading}
+          >
+            {formTitle}
+          </button>
 
-        <input
-          type="password"
-          id="password"
-          name="password"
-          className="form-control"
-          placeholder="Password"
-        />
-
-        <br />
-        <button
-          className="btn btn-lg btn-primary btn-block"
-          type="submit"
-          disabled="false"
-        >
-          Register or Login
-        </button>
-
-        <div className="mt-3">
-          'Need to sign in':'Not registered' click
-          <span className="login_type_btn"> here </span>
-          to register/login.
-        </div>
-      </form>
-    </>
-  );
-};
+          <div className="mt-3">
+            {register ? "Need to sign in" : "Not registered"} click
+            <span
+              className="login_type_btn"
+              onClick={() => this.handleFormType()}
+            >
+              {" "}
+              here{" "}
+            </span>
+            to {register ? "Sign in" : "Register"}
+          </div>
+        </form>
+      </div>
+    );
+  }
+}
 
 export default Login;
