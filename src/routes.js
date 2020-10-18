@@ -1,27 +1,42 @@
 import React, { Component } from "react";
 import { Switch, Route, BrowserRouter } from "react-router-dom";
+import ToastComponent from "./utils/toasts";
+import { connect } from 'react-redux';
+import { autoSignIn } from './store/actions';
+
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Login from "./components/login/index";
 import Contact from "./components/login/index";
 import Home from "./components/home/index"; 
-import ToastComponent from "./utils/toasts";
 
 class Routes extends Component {
+
+  componentDidMount(){
+    this.props.dispatch(autoSignIn());
+  }
+
+  app = auth => (
+    <>      
+    <BrowserRouter>
+    <Header />
+    <Switch>
+        <Route path='/login' component={Login}/>
+        <Route path='contact' component={Contact}/>
+        <Route path='/' component={Home}/>
+    </Switch>
+    <Footer />
+    <ToastComponent />
+  </BrowserRouter>
+  </>
+  )
+
   render() {
-    return (
-      <BrowserRouter>
-        <Header />
-        <Switch>
-            <Route path='/login' component={Login}/>
-            <Route path='contact' component={Contact}/>
-            <Route path='/' component={Home}/>
-        </Switch>
-        <Footer />
-        <ToastComponent />
-      </BrowserRouter>
-    );
+    const { auth } = this.props;
+    return auth.checkingAuth ? this.app(auth) : "...loading";
   }
 }
 
-export default Routes;
+const mapStateToProps = state => ({ auth: state.auth })
+
+export default connect(mapStateToProps)(Routes);

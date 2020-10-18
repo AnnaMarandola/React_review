@@ -11,3 +11,8 @@ export const loginUser = (userData) => ({
   payload: api.loginUser(userData)
 });
 
+export const autoSignIn = () => ({
+  type: AUTH_USER,
+  payload: api.autoSignIn()
+})
+
