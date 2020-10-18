@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { registerUser, loginUser } from "../../store/actions";
 import { connect } from "react-redux";
+import { toast } from "react-toastify";
 class Login extends Component {
   state = {
     formdata: {
@@ -21,22 +22,28 @@ class Login extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    this.setState({loading: true})
+    this.setState({ loading: true });
     if (this.state.register) {
-      this.props.dispatch(registerUser(this.state.formdata)).then(
-        ({payload}) => this.handleRedirection(payload)
-      )
+      this.props
+        .dispatch(registerUser(this.state.formdata))
+        .then(({ payload }) => this.handleRedirection(payload));
     } else {
-      this.props.dispatch(loginUser(this.state.formdata)).then(
-        ({payload}) => this.handleRedirection(payload)
-      )
+      this.props
+        .dispatch(loginUser(this.state.formdata))
+        .then(({ payload }) => this.handleRedirection(payload));
     }
   };
 
-  handleRedirection = result => {
-    return this.props.history.push('/dashboard')
-    
-  }
+  handleRedirection = (result) => {
+    if (result.error) {
+      this.setState({ loading: false });
+      toast.error(result.error, {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    } else {
+      return this.props.history.push("/dashboard");
+    }
+  };
 
   handleInput = (e) => {
     let name = e.target.name;
@@ -126,8 +133,8 @@ class Login extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  auth: state.auth
-})
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
 
 export default connect(mapStateToProps)(Login);

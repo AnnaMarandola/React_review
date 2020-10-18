@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import Login from "./components/login/index";
 import Contact from "./components/login/index";
 import Home from "./components/home/index"; 
+import ToastComponent from "./utils/toasts";
 
 class Routes extends Component {
   render() {
@@ -17,6 +18,7 @@ class Routes extends Component {
             <Route path='/' component={Home}/>
         </Switch>
         <Footer />
+        <ToastComponent />
       </BrowserRouter>
     );
   }
