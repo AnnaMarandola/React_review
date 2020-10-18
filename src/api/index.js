@@ -25,3 +25,13 @@ export const registerUser = async ({ email, password, name, lastname }) => {
     return { error: error.message };
   }
 };
+
+export const loginUser = ({email, password}) => (
+  firebase.auth().signInWithEmailAndPassword(email, password).then( response => {
+      return usersCollection.doc(response.user.uid).get().then( snapshot => {
+        return { isAuth: true, user: snapshot.data }
+      })
+  }).catch( error => {
+    return { error: error.message}
+  })
+)

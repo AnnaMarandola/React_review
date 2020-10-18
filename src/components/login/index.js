@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { registerUser } from "../../store/actions";
+import { registerUser, loginUser } from "../../store/actions";
 import { connect } from "react-redux";
 class Login extends Component {
   state = {
@@ -27,12 +27,14 @@ class Login extends Component {
         ({payload}) => this.handleRedirection(payload)
       )
     } else {
-      console.log(this.state.formdata, "login");
+      this.props.dispatch(loginUser(this.state.formdata)).then(
+        ({payload}) => this.handleRedirection(payload)
+      )
     }
-
   };
 
   handleRedirection = result => {
+    return this.props.history.push('/dashboard')
     
   }
 
