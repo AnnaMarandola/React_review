@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import DashLayout from "../../../utils/dash_layout";
 import { useForm } from "react-hook-form";
-
 import { useSelector, useDispatch } from "react-redux";
+import { updateProfile } from "../../../store/actions";
+import { toast } from "react-toastify";
 import LoginModal from "../../../utils/login_modal";
 
 const Profile = (props) => {
@@ -16,6 +17,7 @@ const Profile = (props) => {
     formData: "",
   });
 
+
   const handleReAuthModal = data => {
     setShowModal({ open: true, formData: data})
   }
@@ -23,7 +25,16 @@ const Profile = (props) => {
 
 
   const submitForm = (data) => {
-    setShowModal({ open: true, formData: data})
+    const isEmailChanged = auth.user.email === data.email ? false : true;
+    setDisabled(true)
+    setShowModal({ open: true, formData: ''})
+
+    dispatch(updateProfile({ uid: auth.user.uid , ...data}, isEmailChanged)).then(() => {
+      toast.success('Votre profil a été mis à jour', {
+        position: toast.POSITION.BOTTOM_LEFT
+      })
+    })
+
   };
 
   const handleClose = () => setShowModal({ open: false, formData: "" });
