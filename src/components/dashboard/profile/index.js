@@ -3,6 +3,7 @@ import DashLayout from "../../../utils/dash_layout";
 import { useForm } from "react-hook-form";
 
 import { useSelector, useDispatch } from "react-redux";
+import LoginModal from "../../../utils/login_modal";
 
 const Profile = (props) => {
   const auth = useSelector((state) => state.auth);
@@ -10,15 +11,27 @@ const Profile = (props) => {
 
   const { register, handleSubmit, errors } = useForm();
   const [disabled, setDisabled] = useState(false);
+  const [showModal, setShowModal] = useState({
+    open: false,
+    formData: "",
+  });
+
+  const handleReAuthModal = data => {
+    setShowModal({ open: true, formData: data})
+  }
+
+
 
   const submitForm = (data) => {
-    console.log(data);
+    setShowModal({ open: true, formData: data})
   };
+
+  const handleClose = () => setShowModal({ open: false, formData: "" });
 
   return (
     <>
       <DashLayout auth={auth}>
-        <form onSubmit={handleSubmit(submitForm)}>
+        <form onSubmit={handleSubmit(handleReAuthModal)}>
           <div className="row">
             <div className="col-md-6 mb-3">
               <label htmlFor="name">First name</label>
@@ -29,7 +42,9 @@ const Profile = (props) => {
                 defaultValue={auth.user.name}
                 ref={register({ required: true })}
               />
-              { errors.name && <span className="error">This field is required</span> }
+              {errors.name && (
+                <span className="error">This field is required</span>
+              )}
             </div>
 
             <div className="col-md-6 mb-3">
@@ -41,7 +56,9 @@ const Profile = (props) => {
                 defaultValue={auth.user.lastname}
                 ref={register({ required: true })}
               />
-              { errors.lastname && <span className="error">This field is required</span> }
+              {errors.lastname && (
+                <span className="error">This field is required</span>
+              )}
             </div>
           </div>
 
@@ -52,11 +69,14 @@ const Profile = (props) => {
               className="form-control"
               name="email"
               defaultValue={auth.user.email}
-              ref={register({ 
-                  required: true,
-                  pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ 
-              })}/>
-           { errors.email && <span className="error">Please check your email</span> }
+              ref={register({
+                required: true,
+                pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+              })}
+            />
+            {errors.email && (
+              <span className="error">Please check your email</span>
+            )}
           </div>
 
           <div className="mb-3">
@@ -122,10 +142,16 @@ const Profile = (props) => {
           <button
             className="btn btn-outline-primary btn-lg btn-block"
             type="submit"
+            disabled={disabled}
           >
             Update profile
           </button>
         </form>
+        <LoginModal 
+        modalState={showModal} 
+        handleClose={handleClose} 
+        submitForm={(data) => submitForm(data)}
+        />
       </DashLayout>
     </>
   );
