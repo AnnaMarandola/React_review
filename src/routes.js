@@ -13,6 +13,8 @@ import Home from "./components/home/index";
 import Dashboard from "./components/dashboard/index.js";
 import Reviews from "./components/dashboard/reviews/index";
 import Profile from "./components/dashboard/profile";
+import ReviewAddEdit from "./components/dashboard/reviews/add_edit";
+
 class Routes extends Component {
   componentDidMount() {
     this.props.dispatch(autoSignIn());
@@ -25,6 +27,7 @@ class Routes extends Component {
       <BrowserRouter>
         <Header auth={auth} logout={this.handleLogout} />
         <Switch>
+        <Route path="/dashboard/reviews/add" component={AuthHoc(ReviewAddEdit, true)} />
         <Route path="/dashboard/reviews" component={AuthHoc(Reviews, true)} />
         <Route path="/dashboard/profile" component={AuthHoc(Profile)} />
         <Route path="/dashboard" component={AuthHoc(Dashboard)} />
