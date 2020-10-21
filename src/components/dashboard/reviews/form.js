@@ -5,11 +5,14 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import CKEditor from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { addReview } from '../../../store/actions/index';
+import { toast } from 'react-toastify';
 
 class ReviewForm extends Component {
   state = {
     editor: "",
     editorError: false,
+    disable: false,
     initialValues: {
       title: "",
       excerpt: "",
@@ -17,6 +20,23 @@ class ReviewForm extends Component {
       public: "",
     },
   };
+
+  handleResetForm = (resetForm) => {
+    resetForm({});
+    this.setState({
+      editor: '',
+      disable: false,
+    });
+    toast.success('Votre article est enregistré')
+  }
+
+  handleSubmit = (values, resetForm) => {
+    let formData = { ...values, content: this.state.editor};
+
+    this.props.dispatch(addReview(formData, this.props.auth.user)).then(()=> {
+      this.handleResetForm(resetForm);
+    });
+  }
 
   render() {
     const state = this.state;
@@ -35,7 +55,8 @@ class ReviewForm extends Component {
           if (Object.entries(state.editor).length === 0) {
             return this.setState({ editorError: true });
           } else {
-            this.setState({editorError: false});
+            this.setState({disable: true, editorError: false});
+            this.handleSubmit(values, resetForm)
             console.log("SUBMIT");
           }
         }}
@@ -126,7 +147,10 @@ class ReviewForm extends Component {
                     <div className="error">{errors.public}</div>
                   ) : null}
                 </Form.Group>
-                <Button variant="primary" type="submit" disabled="">
+                <Button 
+                variant="primary" 
+                type="submit" 
+                disabled={state.disable}>
                   Valider
                 </Button>
               </Col>
