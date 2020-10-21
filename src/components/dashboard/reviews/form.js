@@ -1,12 +1,15 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-
 import { Form, Button, Col } from "react-bootstrap";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import CKEditor from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 class ReviewForm extends Component {
   state = {
+    editor: "",
+    editorError: false,
     initialValues: {
       title: "",
       excerpt: "",
@@ -29,7 +32,12 @@ class ReviewForm extends Component {
           public: Yup.number().required("Brouillon ?"),
         })}
         onSubmit={(values, { resetForm }) => {
-          console.log(values);
+          if (Object.entries(state.editor).length === 0) {
+            return this.setState({ editorError: true });
+          } else {
+            this.setState({editorError: false});
+            console.log("SUBMIT");
+          }
         }}
       >
         {({ values, errors, touched, handleChange, handleSubmit }) => (
@@ -44,10 +52,9 @@ class ReviewForm extends Component {
                     value={values.title}
                     onChange={handleChange}
                   />
-                  { errors.title && touched.title ? 
+                  {errors.title && touched.title ? (
                     <div className="error">{errors.title}</div>
-                    : null
-                  }
+                  ) : null}
                 </Form.Group>
                 <Form.Group>
                   <Form.Label>Extrait</Form.Label>
@@ -58,14 +65,24 @@ class ReviewForm extends Component {
                     value={values.excerpt}
                     onChange={handleChange}
                   />
-                  {errors.excerpt && touched.excerpt ?
+                  {errors.excerpt && touched.excerpt ? (
                     <div className="error">{errors.excerpt}</div>
-                    : null
-                  }
+                  ) : null}
                 </Form.Group>
-                <Form.Group>editor</Form.Group>
-                <div className="error"></div>
-
+                <Form.Group>
+                  <CKEditor
+                    editor={ClassicEditor}
+                    data={this.state.editor}
+                    onChange={(event, editor) => {
+                      this.setState({
+                        editor: editor.getData(),
+                      });
+                    }}
+                  />
+                </Form.Group>
+                {state.editorError ? (
+                  <div className="error">Vous devez ajouter un contenu !</div>
+                ) : null}
                 <Form.Group>
                   <Form.Label>Rubrique</Form.Label>
                   <Form.Control
@@ -86,12 +103,10 @@ class ReviewForm extends Component {
                     <option value="redux">Redux</option>
                     <option value="firebase">Firebase</option>
                     <option value="various">Divers</option>
-
                   </Form.Control>
-                  {errors.heading && touched.heading ?
+                  {errors.heading && touched.heading ? (
                     <div className="error">{errors.heading}</div>
-                    : null
-                  }
+                  ) : null}
                 </Form.Group>
                 <Form.Group>
                   <Form.Label>Public</Form.Label>
@@ -107,10 +122,9 @@ class ReviewForm extends Component {
                     <option value="1">Public</option>
                     <option value="0">Draft</option>
                   </Form.Control>
-                  {errors.public && touched.public ?
+                  {errors.public && touched.public ? (
                     <div className="error">{errors.public}</div>
-                    : null
-                  }
+                  ) : null}
                 </Form.Group>
                 <Button variant="primary" type="submit" disabled="">
                   Valider
