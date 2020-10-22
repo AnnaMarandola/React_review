@@ -139,6 +139,14 @@ export const loadMoreReviews = (limit, reviews) => {
   }
 };
 
+export const editReview = (data, id) =>
+  reviewsCollection
+    .doc(id)
+    .update(data)
+    .then(() => {
+      return getReviewById(id);
+    });
+
 export const getReviewById = async (id) => {
   try {
     const snapshot = await reviewsCollection.doc(id).get();

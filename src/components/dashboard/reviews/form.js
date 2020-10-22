@@ -9,9 +9,11 @@ import {
   addReview,
   clearReview,
   getReviewById,
+  editReview,
 } from "../../../store/actions/index";
 import { toast } from "react-toastify";
 import Uploader from "./uploader";
+import { auth } from "firebase";
 
 class ReviewForm extends Component {
   state = {
@@ -20,6 +22,7 @@ class ReviewForm extends Component {
     editorError: false,
     img: "https://via.placeholder.com/400",
     imgName: "",
+    imgError: "",
     disable: false,
     initialValues: {
       title: "",
@@ -29,37 +32,34 @@ class ReviewForm extends Component {
     },
   };
 
-  componentDidMount() {
+  componentDidMount(){
     const id = this.props.id;
 
-    if (id) {
-      this.props
-        .dispatch(getReviewById(id))
-        .then(() => {
-          const reviewById = this.props.reviews.reviewById;
-          this.setState({
-            mode: "edit",
-            editor: reviewById.content,
-            img: reviewById.downloadUrl,
-            imgName: reviewById.img,
-            disable: false,
-            initialValues: {
-              title: reviewById.title,
-              excerpt: reviewById.excerpt,
-              heading: reviewById.heading,
-              public: reviewById.public,
-            },
-          });
+    if(id) {
+        this.props.dispatch(getReviewById(id)).then(()=>{
+            const reviewById = this.props.reviews.reviewById;
+            this.setState({
+                mode:'edit',
+                editor: reviewById.content,
+                img: reviewById.downloadUrl,
+                imgName: reviewById.img,
+                initialValues:{
+                    title: reviewById.title,
+                    excerpt: reviewById.excerpt,
+                    heading: reviewById.heading,
+                    public:  reviewById.public
+                }
+            });
+        }).catch((e)=>{
+            this.props.history.push('/dashboard/reviews');
+            toast.error('Sorry, the post does not exists',{
+                position:toast.POSITION.BOTTOM_RIGHT
+            })
         })
-        .catch((e) => {
-          console.log("error de marde", e);
-          this.props.history.push("/dashboard/reviews");
-          toast.error("Désolé, ce post n'existe pas", {
-            position: toast.POSITION.BOTTOM_RIGHT,
-          });
-        });
     }
-  }
+}
+
+
 
   componentWillUnmount() {
     this.props.dispatch(clearReview());
@@ -89,9 +89,20 @@ class ReviewForm extends Component {
       img: this.state.imgName,
     };
 
-    this.props.dispatch(addReview(formData, this.props.auth.user)).then(() => {
-      this.handleResetForm(resetForm);
-    });
+    if (this.state.mode === "add") {
+      this.props
+        .dispatch(addReview(formData, this.props.auth.user))
+        .then(() => {
+          this.handleResetForm(resetForm);
+        });
+    } else {
+      this.props.dispatch(editReview(formData, this.props.id)).then(() => {
+        this.setState({ disable: false });
+        toast.success("Votre post a été mis à jour", {
+          position: toast.POSITION.BOTTOM_RIGHT,
+        });
+      });
+    }
   };
 
   render() {

@@ -57,3 +57,8 @@ export const getReviewById = (id) => ({
   type: GET_REVIEW_BY_ID,
   payload: api.getReviewById(id),
 });
+
+export const editReview = (data, id) => ({
+  type: GET_REVIEW_BY_ID,
+  payload: api.editReview(data, id),
+});

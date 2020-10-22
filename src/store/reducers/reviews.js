@@ -10,7 +10,7 @@ export default function (state = {}, action) {
     case ADD_REVIEW:
       return { ...state, addedReview: action.payload };
     case CLEAR_REVIEW:
-      return { addedReview: action.payload };
+      return { addedReview: action.payload, reviewById: action.payload };
     case GET_REVIEWS:
       return { ...state, adminReviews: action.payload };
     case GET_REVIEW_BY_ID:
