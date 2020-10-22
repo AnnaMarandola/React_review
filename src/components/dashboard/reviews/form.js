@@ -5,11 +5,17 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import CKEditor from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { addReview, clearReview } from '../../../store/actions/index';
+import { toast } from 'react-toastify';
+import Uploader from './uploader';
 
 class ReviewForm extends Component {
   state = {
     editor: "",
     editorError: false,
+    img: "https://via.placeholder.com/400",
+    imgName: '',
+    disable: false,
     initialValues: {
       title: "",
       excerpt: "",
@@ -17,6 +23,36 @@ class ReviewForm extends Component {
       public: "",
     },
   };
+
+  componentWillUnmount(){
+    this.props.dispatch(clearReview());
+  }
+
+
+  handleResetForm = (resetForm) => {
+    resetForm({});
+    this.setState({
+      editor: '',
+      img: 'https://via.placeholder.com/400',
+      imgError: false,
+      disable: false,
+    });
+    toast.success('Votre article est enregistré', {
+      position: toast.POSITION.TOP_LEFT
+    })
+  }
+
+  handleImageName = ( name, download) => {
+    this.setState({ img: download, imgName: name})
+  }
+
+  handleSubmit = (values, resetForm) => {
+    let formData = { ...values, content: this.state.editor, img: this.state.imgName };
+
+    this.props.dispatch(addReview(formData, this.props.auth.user)).then(()=> {
+      this.handleResetForm(resetForm);
+    });
+  }
 
   render() {
     const state = this.state;
@@ -34,8 +70,13 @@ class ReviewForm extends Component {
         onSubmit={(values, { resetForm }) => {
           if (Object.entries(state.editor).length === 0) {
             return this.setState({ editorError: true });
-          } else {
-            this.setState({editorError: false});
+          }
+          else if(state.imgName === ''){
+            return this.setState({imgError: true, editorError: false})
+          } 
+          else {
+            this.setState({disable: true, editorError: false});
+            this.handleSubmit(values, resetForm)
             console.log("SUBMIT");
           }
         }}
@@ -126,13 +167,22 @@ class ReviewForm extends Component {
                     <div className="error">{errors.public}</div>
                   ) : null}
                 </Form.Group>
-                <Button variant="primary" type="submit" disabled="">
+                <Button 
+                variant="primary" 
+                type="submit" 
+                disabled={state.disable}>
                   Valider
                 </Button>
               </Col>
               <Col>
-                UPLOADER
+                <Uploader
+                  img={this.state.img}
+                  handleImageName={this.handleImageName}
+                />
+                { state.imgError ?
                 <div className="error">Add an image please</div>
+                : null
+                }
               </Col>
             </Form.Row>
           </Form>

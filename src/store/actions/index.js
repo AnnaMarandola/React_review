@@ -1,4 +1,4 @@
-import { AUTH_USER, LOGOUT_USER } from "../types";
+import { AUTH_USER, LOGOUT_USER, ADD_REVIEW, CLEAR_REVIEW } from "../types";
 import * as api from "../../api";
 
 export const registerUser = (userData) => ({
@@ -26,3 +26,12 @@ export const updateProfile = (formData, isEmailChanged) => ({
   payload: api.updateProfile(formData, isEmailChanged)
 })
 
+export const addReview = (data, user) => ({
+  type: ADD_REVIEW,
+  payload: api.addReview(data, user)
+})
+
+export const clearReview = () => ({
+  type: CLEAR_REVIEW,
+  payload: null
+})
