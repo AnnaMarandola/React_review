@@ -7,11 +7,14 @@ import CKEditor from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { addReview } from '../../../store/actions/index';
 import { toast } from 'react-toastify';
+import Uploader from './uploader';
 
 class ReviewForm extends Component {
   state = {
     editor: "",
     editorError: false,
+    img: "https://via.placeholder.com/400",
+    imageName: '',
     disable: false,
     initialValues: {
       title: "",
@@ -27,7 +30,9 @@ class ReviewForm extends Component {
       editor: '',
       disable: false,
     });
-    toast.success('Votre article est enregistré')
+    toast.success('Votre article est enregistré', {
+      position: toast.POSITION.TOP_LEFT
+    })
   }
 
   handleSubmit = (values, resetForm) => {
@@ -155,8 +160,10 @@ class ReviewForm extends Component {
                 </Button>
               </Col>
               <Col>
-                UPLOADER
-                <div className="error">Add an image please</div>
+                <Uploader
+                  img={this.state.img}
+                />
+                {/* <div className="error">Add an image please</div> */}
               </Col>
             </Form.Row>
           </Form>
