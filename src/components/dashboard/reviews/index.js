@@ -5,24 +5,23 @@ import { Link } from "react-router-dom";
 import DashLayout from "../../../utils/dash_layout";
 import { getReviews, loadMoreReviews } from "../../../store/actions";
 
-
 const ReviewsMain = (props) => {
-  const reviews = useSelector(state => state.reviews);
+  const reviews = useSelector((state) => state.reviews);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if(!reviews.adminReviews){
-      dispatch(getReviews(2))
+    if (!reviews.adminReviews) {
+      dispatch(getReviews(2));
     }
-  }, [dispatch])
+  }, [dispatch]);
 
   const loadMore = () => {
-    dispatch(loadMoreReviews(1, reviews. adminReviews))
-  }
+    dispatch(loadMoreReviews(1, reviews.adminReviews));
+  };
 
-  const renderReviews = () => (
-    reviews.adminReviews ?
-        reviews.adminReviews.posts.map((post, i) => (
+  const renderReviews = () =>
+    reviews.adminReviews
+      ? reviews.adminReviews.posts.map((post, i) => (
           <tr key={i}>
             <td>{i + 1}</td>
             <td>{post.title}</td>
@@ -30,21 +29,24 @@ const ReviewsMain = (props) => {
             <td>{post.ownerData.name}</td>
             <td>{post.public === 1 ? "Publié" : "Brouillon"}</td>
             <td>
-            <div className="table-link-red">Supprimer</div>
+              <div className="table-link-red">Supprimer</div>
             </td>
             <td>
-              <Link className="table-link" to={`reviews/edit/${post.id}`}>Modifier</Link>
+              <Link className="table-link" to={`reviews/edit/${post.id}`}>
+                Modifier
+              </Link>
             </td>
           </tr>
         ))
-      : null
-  )
+      : null;
   return (
     <DashLayout auth={props.auth} title="Reviews main">
-    <div>
-    <Link className="btn btn-outline-primary btn-sm" to="reviews/add">Ajouter un nouveau post</Link>
-    </div>
-    <hr/>
+      <div>
+        <Link className="btn btn-outline-primary btn-sm" to="reviews/add">
+          Ajouter un nouveau post
+        </Link>
+      </div>
+      <hr />
       <div className="table-responsive-md">
         <table className="table table-dark">
           <thead>
@@ -56,13 +58,13 @@ const ReviewsMain = (props) => {
               <th scope="col">Status</th>
             </tr>
           </thead>
-          <tbody>
-            { renderReviews() }
-          </tbody>
+          <tbody>{renderReviews()}</tbody>
         </table>
       </div>
 
-      <div className="btn btn-primary" onClick={loadMore}>Plus</div>
+      <div className="btn btn-primary" onClick={loadMore}>
+        Plus
+      </div>
     </DashLayout>
   );
 };

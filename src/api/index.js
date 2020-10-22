@@ -1,5 +1,6 @@
 import firebase from "firebase/app";
 import "firebase/auth";
+import "firebase/storage";
 
 import { usersCollection, reviewsCollection } from "../utils/firebase";
 
@@ -60,76 +61,95 @@ export const autoSignIn = () =>
     });
   });
 
-  export const logoutUser = () => {
-    firebase.auth().signOut();
+export const logoutUser = () => {
+  firebase.auth().signOut();
+};
+
+export const updateProfile = (formdata, isEmailChanged) => {
+  const collection = usersCollection.doc(formdata.uid);
+  const updateDocument = () =>
+    collection
+      .update(formdata)
+      .then(() =>
+        collection
+          .get()
+          .then((snapshot) => ({ isAuth: true, user: snapshot.data() }))
+      );
+
+  if (isEmailChanged) {
+    let getUser = firebase.auth().currentUser;
+    getUser.updateEmail(FormData.email);
+    return updateDocument();
+  } else {
+    return updateDocument();
   }
+};
 
-  export const updateProfile = (formdata, isEmailChanged) => {
-    const collection = usersCollection.doc(formdata.uid);
-    const updateDocument = () =>
-    collection.update(formdata).then(() => (
-      collection.get().then(snapshot => (
-        { isAuth: true, user: snapshot.data()}
-      ))
-    ))
-
-    if(isEmailChanged){
-      let getUser = firebase.auth().currentUser;
-      getUser.updateEmail(FormData.email)
-      return updateDocument();
-    } else {
-      return updateDocument();
-    }
-  }
-
-  export const addReview = (data, user) => (
-    reviewsCollection.add({
+export const addReview = (data, user) =>
+  reviewsCollection
+    .add({
       ...data,
       createdAt: serverTimestamp(),
       public: parseInt(data.public),
       ownerData: {
         ownerId: user.uid,
-        name: `${user.name} ${user.lastname}`
-      }
-    }).then(docRef => {
-      return docRef.id
+        name: `${user.name} ${user.lastname}`,
+      },
     })
-  )
+    .then((docRef) => {
+      return docRef.id;
+    });
 
-  export const getReviews = (limit) => (
-    reviewsCollection
-    .orderBy('createdAt')
+export const getReviews = (limit) =>
+  reviewsCollection
+    .orderBy("createdAt")
     .limit(limit)
     .get()
-    .then(snapshot => {
-      const lastVisible = snapshot.docs[snapshot.docs.length-1];
-      const reviews = snapshot.docs.map( doc => ({
-        id: doc.id, ...doc.data()
+    .then((snapshot) => {
+      const lastVisible = snapshot.docs[snapshot.docs.length - 1];
+      const reviews = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
       }));
 
-      return { posts: reviews, lastVisible: lastVisible}
-    })
-  )
+      return { posts: reviews, lastVisible: lastVisible };
+    });
 
-  export const loadMoreReviews = (limit, reviews) => {
-    let posts = [...reviews.posts];
-    let lastVisible = reviews.lastVisible;
+export const loadMoreReviews = (limit, reviews) => {
+  let posts = [...reviews.posts];
+  let lastVisible = reviews.lastVisible;
 
-    if(lastVisible){
-      return reviewsCollection
-      .orderBy('createdAt')
+  if (lastVisible) {
+    return reviewsCollection
+      .orderBy("createdAt")
       .startAfter(lastVisible)
       .limit(limit)
       .get()
-      .then( snapshot => {
+      .then((snapshot) => {
         const lastVisible = snapshot.docs[snapshot.docs.length - 1];
-        const newReviews  = snapshot.docs.map( doc => ({
-          id: doc.id, ...doc.data()
+        const newReviews = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
         }));
-        return { posts: [...posts, ...newReviews], lastVisible: lastVisible}
-      })
-    } else {
-      console.log('no more posts')
-      return { posts, lastVisible }
-    }
+        return { posts: [...posts, ...newReviews], lastVisible: lastVisible };
+      });
+  } else {
+    console.log("no more posts");
+    return { posts, lastVisible };
   }
+};
+
+export const getReviewById = async (id) => {
+  try {
+    const snapshot = await reviewsCollection.doc(id).get();
+    const data = snapshot.data();
+
+    const url = await firebase
+      .storage()
+      .ref(`reviews/${data.img}`)
+      .getDownloadURL();
+    return { ...data, downloadUrl: url };
+  } catch (error) {
+    return null;
+  }
+};

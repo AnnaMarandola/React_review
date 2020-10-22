@@ -1,9 +1,11 @@
-import { 
-  AUTH_USER, 
-  LOGOUT_USER, 
-  ADD_REVIEW, 
-  CLEAR_REVIEW, 
-  GET_REVIEWS } from "../types";
+import {
+  AUTH_USER,
+  LOGOUT_USER,
+  ADD_REVIEW,
+  CLEAR_REVIEW,
+  GET_REVIEWS,
+  GET_REVIEW_BY_ID,
+} from "../types";
 import * as api from "../../api";
 
 export const registerUser = (userData) => ({
@@ -13,41 +15,45 @@ export const registerUser = (userData) => ({
 
 export const loginUser = (userData) => ({
   type: AUTH_USER,
-  payload: api.loginUser(userData)
+  payload: api.loginUser(userData),
 });
 
 export const autoSignIn = () => ({
   type: AUTH_USER,
-  payload: api.autoSignIn()
-})
+  payload: api.autoSignIn(),
+});
 
 export const logoutUser = () => ({
   type: LOGOUT_USER,
-  payload: api.logoutUser()
-})
+  payload: api.logoutUser(),
+});
 
 export const updateProfile = (formData, isEmailChanged) => ({
   type: AUTH_USER,
-  payload: api.updateProfile(formData, isEmailChanged)
-})
+  payload: api.updateProfile(formData, isEmailChanged),
+});
 
 export const addReview = (data, user) => ({
   type: ADD_REVIEW,
-  payload: api.addReview(data, user)
-})
+  payload: api.addReview(data, user),
+});
 
 export const clearReview = () => ({
   type: CLEAR_REVIEW,
-  payload: null
-})
+  payload: null,
+});
 
 export const getReviews = (limit) => ({
   type: GET_REVIEWS,
-  payload: api.getReviews(limit)
-})
+  payload: api.getReviews(limit),
+});
 
 export const loadMoreReviews = (limit, reviews) => ({
   type: GET_REVIEWS,
-  payload: api.loadMoreReviews(limit, reviews)
-})
+  payload: api.loadMoreReviews(limit, reviews),
+});
 
+export const getReviewById = (id) => ({
+  type: GET_REVIEW_BY_ID,
+  payload: api.getReviewById(id),
+});
