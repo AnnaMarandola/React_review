@@ -12,9 +12,9 @@ const Uploader = (props) => {
             const image = event.target.files[0];
             const time = new Date().getTime();
             const storage = firebase.storage();
-            const uploadtask = storage.ref(`reviews/${time}-${image.name}`).put(image);
+            const uploadTask = storage.ref(`reviews/${time}-${image.name}`).put(image);
 
-            uploadtask.on ('state_changed',
+            uploadTask.on ('state_changed',
             (snapshot) => {
                 const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes)*100);
                 setProgress(progress);
@@ -22,6 +22,17 @@ const Uploader = (props) => {
             (error) => { console.log(error)},
             () => {
                 setProgress(0);
+
+                uploadTask
+                .snapshot
+                .ref.getDownloadURL()
+                .then( downloadUrl => {
+                    console.log('FILE AVAILABLE AT', downloadUrl)
+                    props.handleImageName(
+                        uploadTask.snapshot.ref.name,
+                        downloadUrl
+                    )
+                })
             })
         }
     }

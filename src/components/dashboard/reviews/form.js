@@ -14,7 +14,7 @@ class ReviewForm extends Component {
     editor: "",
     editorError: false,
     img: "https://via.placeholder.com/400",
-    imageName: '',
+    imgName: '',
     disable: false,
     initialValues: {
       title: "",
@@ -28,6 +28,8 @@ class ReviewForm extends Component {
     resetForm({});
     this.setState({
       editor: '',
+      img: 'https://via.placeholder.com/400',
+      imgError: false,
       disable: false,
     });
     toast.success('Votre article est enregistré', {
@@ -35,8 +37,12 @@ class ReviewForm extends Component {
     })
   }
 
+  handleImageName = ( name, download) => {
+    this.setState({ img: download, imgName: name})
+  }
+
   handleSubmit = (values, resetForm) => {
-    let formData = { ...values, content: this.state.editor};
+    let formData = { ...values, content: this.state.editor, img: this.state.imgName };
 
     this.props.dispatch(addReview(formData, this.props.auth.user)).then(()=> {
       this.handleResetForm(resetForm);
@@ -59,7 +65,11 @@ class ReviewForm extends Component {
         onSubmit={(values, { resetForm }) => {
           if (Object.entries(state.editor).length === 0) {
             return this.setState({ editorError: true });
-          } else {
+          }
+          else if(state.imgName === ''){
+            return this.setState({imgError: true, editorError: false})
+          } 
+          else {
             this.setState({disable: true, editorError: false});
             this.handleSubmit(values, resetForm)
             console.log("SUBMIT");
@@ -162,8 +172,12 @@ class ReviewForm extends Component {
               <Col>
                 <Uploader
                   img={this.state.img}
+                  handleImageName={this.handleImageName}
                 />
-                {/* <div className="error">Add an image please</div> */}
+                { state.imgError ?
+                <div className="error">Add an image please</div>
+                : null
+                }
               </Col>
             </Form.Row>
           </Form>
