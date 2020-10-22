@@ -5,7 +5,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import CKEditor from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { addReview } from '../../../store/actions/index';
+import { addReview, clearReview } from '../../../store/actions/index';
 import { toast } from 'react-toastify';
 import Uploader from './uploader';
 
@@ -23,6 +23,11 @@ class ReviewForm extends Component {
       public: "",
     },
   };
+
+  componentWillUnmount(){
+    this.props.dispatch(clearReview());
+  }
+
 
   handleResetForm = (resetForm) => {
     resetForm({});
