@@ -8,12 +8,13 @@ import AuthHoc from "./components/hoc/authHoc.js";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Login from "./components/login/index";
-import Contact from "./components/login/index";
+import Contact from "./components/contact/index";
 import Home from "./components/home/index";
 import Dashboard from "./components/dashboard/index.js";
 import Reviews from "./components/dashboard/reviews/index";
 import Profile from "./components/dashboard/profile";
 import ReviewAddEdit from "./components/dashboard/reviews/add_edit";
+import Review from "./components/reviews/index";
 
 class Routes extends Component {
   componentDidMount() {
@@ -38,8 +39,9 @@ class Routes extends Component {
           <Route path="/dashboard/reviews" component={AuthHoc(Reviews, true)} />
           <Route path="/dashboard/profile" component={AuthHoc(Profile)} />
           <Route path="/dashboard" component={AuthHoc(Dashboard)} />
+          <Route path="/reviews/:id" component={Review} />
           <Route path="/login" component={Login} />
-          <Route path="contact" component={Contact} />
+          <Route path="/contact" component={Contact} />
           <Route path="/" component={Home} />
         </Switch>
         <Footer />

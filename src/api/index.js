@@ -2,7 +2,7 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/storage";
 
-import { usersCollection, reviewsCollection } from "../utils/firebase";
+import { usersCollection, reviewsCollection, messagesCollection } from "../utils/firebase";
 
 const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp;
 
@@ -161,3 +161,29 @@ export const getReviewById = async (id) => {
     return null;
   }
 };
+
+export const fetchPosts = (limit = 3, where = null) => {
+  return new Promise((resolve, reject) => {
+    let query = reviewsCollection.where("public", "==", 1);
+    if (where) {
+        query = query.where(where[0], where[1], where[2]);
+    } else {
+      query = query.orderBy('createdAt')
+    }
+    query.limit(limit).get().then( snapshot => {
+      const post = snapshot.docs.map( doc => ({
+        id: doc.id, ...doc.data()
+      }));
+      resolve(post)
+    })
+  });
+};
+
+export const sendContact = (data) => {
+  return messagesCollection.add({
+    ...data,
+    createdAt: serverTimestamp()
+  }).then( docRef => {
+    return docRef.id
+  })
+}
