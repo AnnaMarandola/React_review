@@ -5,16 +5,24 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import CKEditor from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { addReview, clearReview } from '../../../store/actions/index';
-import { toast } from 'react-toastify';
-import Uploader from './uploader';
+import {
+  addReview,
+  clearReview,
+  getReviewById,
+  editReview,
+} from "../../../store/actions/index";
+import { toast } from "react-toastify";
+import Uploader from "./uploader";
+import { auth } from "firebase";
 
 class ReviewForm extends Component {
   state = {
+    mode: "add",
     editor: "",
     editorError: false,
     img: "https://via.placeholder.com/400",
-    imgName: '',
+    imgName: "",
+    imgError: "",
     disable: false,
     initialValues: {
       title: "",
@@ -24,35 +32,78 @@ class ReviewForm extends Component {
     },
   };
 
-  componentWillUnmount(){
+  componentDidMount(){
+    const id = this.props.id;
+
+    if(id) {
+        this.props.dispatch(getReviewById(id)).then(()=>{
+            const reviewById = this.props.reviews.reviewById;
+            this.setState({
+                mode:'edit',
+                editor: reviewById.content,
+                img: reviewById.downloadUrl,
+                imgName: reviewById.img,
+                initialValues:{
+                    title: reviewById.title,
+                    excerpt: reviewById.excerpt,
+                    heading: reviewById.heading,
+                    public:  reviewById.public
+                }
+            });
+        }).catch((e)=>{
+            this.props.history.push('/dashboard/reviews');
+            toast.error('Sorry, the post does not exists',{
+                position:toast.POSITION.BOTTOM_RIGHT
+            })
+        })
+    }
+}
+
+
+
+  componentWillUnmount() {
     this.props.dispatch(clearReview());
   }
-
 
   handleResetForm = (resetForm) => {
     resetForm({});
     this.setState({
-      editor: '',
-      img: 'https://via.placeholder.com/400',
+      editor: "",
+      img: "https://via.placeholder.com/400",
       imgError: false,
       disable: false,
     });
-    toast.success('Votre article est enregistré', {
-      position: toast.POSITION.TOP_LEFT
-    })
-  }
+    toast.success("Votre article est enregistré", {
+      position: toast.POSITION.TOP_LEFT,
+    });
+  };
 
-  handleImageName = ( name, download) => {
-    this.setState({ img: download, imgName: name})
-  }
+  handleImageName = (name, download) => {
+    this.setState({ img: download, imgName: name });
+  };
 
   handleSubmit = (values, resetForm) => {
-    let formData = { ...values, content: this.state.editor, img: this.state.imgName };
+    let formData = {
+      ...values,
+      content: this.state.editor,
+      img: this.state.imgName,
+    };
 
-    this.props.dispatch(addReview(formData, this.props.auth.user)).then(()=> {
-      this.handleResetForm(resetForm);
-    });
-  }
+    if (this.state.mode === "add") {
+      this.props
+        .dispatch(addReview(formData, this.props.auth.user))
+        .then(() => {
+          this.handleResetForm(resetForm);
+        });
+    } else {
+      this.props.dispatch(editReview(formData, this.props.id)).then(() => {
+        this.setState({ disable: false });
+        toast.success("Votre post a été mis à jour", {
+          position: toast.POSITION.BOTTOM_RIGHT,
+        });
+      });
+    }
+  };
 
   render() {
     const state = this.state;
@@ -70,13 +121,11 @@ class ReviewForm extends Component {
         onSubmit={(values, { resetForm }) => {
           if (Object.entries(state.editor).length === 0) {
             return this.setState({ editorError: true });
-          }
-          else if(state.imgName === ''){
-            return this.setState({imgError: true, editorError: false})
-          } 
-          else {
-            this.setState({disable: true, editorError: false});
-            this.handleSubmit(values, resetForm)
+          } else if (state.imgName === "") {
+            return this.setState({ imgError: true, editorError: false });
+          } else {
+            this.setState({ disable: true, editorError: false });
+            this.handleSubmit(values, resetForm);
             console.log("SUBMIT");
           }
         }}
@@ -167,10 +216,11 @@ class ReviewForm extends Component {
                     <div className="error">{errors.public}</div>
                   ) : null}
                 </Form.Group>
-                <Button 
-                variant="primary" 
-                type="submit" 
-                disabled={state.disable}>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  disabled={state.disable}
+                >
                   Valider
                 </Button>
               </Col>
@@ -179,10 +229,9 @@ class ReviewForm extends Component {
                   img={this.state.img}
                   handleImageName={this.handleImageName}
                 />
-                { state.imgError ?
-                <div className="error">Add an image please</div>
-                : null
-                }
+                {state.imgError ? (
+                  <div className="error">Add an image please</div>
+                ) : null}
               </Col>
             </Form.Row>
           </Form>
