@@ -6,9 +6,19 @@ import {
   GET_REVIEWS,
   GET_REVIEW_BY_ID,
   FETCH_POSTS,
+  SEND_CONTACT,
 } from "../types";
 import * as api from "../../api";
 import { applyMiddleware } from 'redux';
+
+// ========contact==========
+
+export const sendContact = (data) => ({
+  type: SEND_CONTACT,
+  payload: api.sendContact(data)
+})
+
+// ==========auth actions============
 
 export const registerUser = (userData) => ({
   type: AUTH_USER,

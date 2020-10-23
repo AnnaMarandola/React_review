@@ -2,7 +2,7 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/storage";
 
-import { usersCollection, reviewsCollection } from "../utils/firebase";
+import { usersCollection, reviewsCollection, messagesCollection } from "../utils/firebase";
 
 const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp;
 
@@ -178,3 +178,12 @@ export const fetchPosts = (limit = 3, where = null) => {
     })
   });
 };
+
+export const sendContact = (data) => {
+  return messagesCollection.add({
+    ...data,
+    createdAt: serverTimestamp()
+  }).then( docRef => {
+    return docRef.id
+  })
+}
